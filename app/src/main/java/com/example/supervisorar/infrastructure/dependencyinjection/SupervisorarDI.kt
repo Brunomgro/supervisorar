@@ -1,4 +1,4 @@
-package com.example.supervisorar.infrastructure
+package com.example.supervisorar.infrastructure.dependencyinjection
 
 import com.example.supervisorar.domain.SupervisorarUseCase
 import com.example.supervisorar.domain.impl.SupervisorarUseCaseImpl

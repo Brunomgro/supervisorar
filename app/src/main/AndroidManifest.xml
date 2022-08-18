@@ -17,7 +17,7 @@
         android:theme="@style/Theme.SupervisorAR"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.activity.MainActivity"
+            android:name="com.example.supervisorar.infrastructure.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

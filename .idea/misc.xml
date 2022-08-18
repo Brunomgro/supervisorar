@@ -5,7 +5,10 @@
       <map>
         <entry key="..\:/Users/Bruno/AndroidStudioProjects/SupervisorAR/app/src/main/res/layout/activity_main.xml" value="0.1541372351160444" />
         <entry key="..\:/Users/Bruno/AndroidStudioProjects/SupervisorAR/app/src/main/res/layout/fragment_supervising_screen.xml" value="0.25" />
+        <entry key="..\:/Users/Bruno/Documents/TCC/supervisorar/app/src/main/res/drawable-v24/ic_home_black_24dp.xml" value="0.1" />
+        <entry key="..\:/Users/Bruno/Documents/TCC/supervisorar/app/src/main/res/drawable-v24/ic_notifications_black_24dp.xml" value="0.1" />
         <entry key="..\:/Users/Bruno/Documents/TCC/supervisorar/app/src/main/res/layout/fragment_supervising_screen.xml" value="0.1" />
+        <entry key="..\:/Users/Bruno/Documents/TCC/supervisorar/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1" />
       </map>
     </option>
   </component>

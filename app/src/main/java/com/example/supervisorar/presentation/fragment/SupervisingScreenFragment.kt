@@ -6,14 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.supervisorar.R
 import com.example.supervisorar.databinding.FragmentSupervisingScreenBinding
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
-import io.github.sceneview.SceneView
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
-import kotlinx.coroutines.delay
 import org.koin.android.ext.android.inject
 
 class SupervisingScreenFragment : Fragment() {
@@ -23,7 +20,8 @@ class SupervisingScreenFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSupervisingScreenBinding.inflate(inflater,container, false)
@@ -33,7 +31,6 @@ class SupervisingScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.textView2.text = viewModel.info.value
 
         val sceneView = binding.supervisorSceneView
 

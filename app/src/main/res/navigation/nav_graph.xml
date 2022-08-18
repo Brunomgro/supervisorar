@@ -3,11 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/supervisingScreenFragment">
+    app:startDestination="@id/navigation_home">
 
     <fragment
-        android:id="@+id/supervisingScreenFragment"
+        android:id="@+id/navigation_supervisor"
         android:name="com.example.supervisorar.presentation.fragment.SupervisingScreenFragment"
-        android:label="fragment_supervising_screen"
+        android:label="@string/title_supervising_screen"
         tools:layout="@layout/fragment_supervising_screen" />
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.supervisorar.presentation.fragment.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
 </navigation>

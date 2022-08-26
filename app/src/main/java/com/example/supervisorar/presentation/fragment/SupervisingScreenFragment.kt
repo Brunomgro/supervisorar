@@ -8,9 +8,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.supervisorar.databinding.FragmentSupervisingScreenBinding
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
+import io.github.sceneview.SceneView
+import io.github.sceneview.ar.ArSceneView
+import io.github.sceneview.ar.getScene
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.utils.setFullScreen
 import org.koin.android.ext.android.inject
 
 class SupervisingScreenFragment : Fragment() {
@@ -18,6 +22,7 @@ class SupervisingScreenFragment : Fragment() {
     private val viewModel: SupervisingScreenViewModel by inject()
     private var _binding: FragmentSupervisingScreenBinding? = null
     private val binding get() = _binding!!
+    private lateinit var sceneView: ArSceneView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,18 +30,28 @@ class SupervisingScreenFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSupervisingScreenBinding.inflate(inflater,container, false)
-
+        sceneView = binding.supervisorSceneView
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupARScene()
+    }
 
-        val sceneView = binding.supervisorSceneView
-
+    private fun setupARScene() {
         sceneView.cameraNode.position = Position(x = 4.0f, y = -1.0f)
         sceneView.cameraNode.rotation = Rotation(x = 0.0f, y = 80.0f)
 
+        viewModel.contador.observe(viewLifecycleOwner) {
+            sceneView.currentFrame?.frame?.acquireCameraImage().let {
+                loadInformativeLayouts()
+            }
+            viewModel.runAgain()
+        }
+    }
+
+    private fun loadInformativeLayouts() {
         val modelNode = ModelNode()
 
         sceneView.addChild(modelNode)

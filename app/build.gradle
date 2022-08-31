@@ -46,14 +46,14 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    //noinspection GradleCompatible
-    implementation 'com.android.support:support-v4:28.0.0'
     implementation 'android.arch.lifecycle:livedata:1.1.1'
     implementation 'android.arch.lifecycle:viewmodel:1.1.1'
     implementation "io.insert-koin:koin-android:3.2.0"
+    //noinspection GradleCompatible
+    implementation 'com.android.support:support-v4:28.0.0'
 
     //Business dependencies
-    implementation 'io.github.sceneview:arsceneview:0.8.0'
+    implementation 'io.github.sceneview:arsceneview:0.9.0'
 
     testImplementation 'junit:junit:4.13.2'
 

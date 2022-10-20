@@ -52,6 +52,11 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'com.android.support:support-v4:28.0.0'
 
+    //specific setup stuff
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
     //Business dependencies
     implementation 'io.github.sceneview:arsceneview:0.9.0'
 

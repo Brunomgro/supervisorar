@@ -39,6 +39,9 @@ class SupervisingScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupArSceneView()
         setupActionButton()
+        viewModel.title.observe(viewLifecycleOwner){
+            binding.textinhoo.text = it
+        }
 
         lifecycleScope.launchWhenCreated {
             load3dImages(viewModel.modelNode.value!!, sceneView)

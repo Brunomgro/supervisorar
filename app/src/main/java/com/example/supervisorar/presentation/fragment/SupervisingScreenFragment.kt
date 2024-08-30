@@ -1,19 +1,26 @@
 package com.example.supervisorar.presentation.fragment
 
+import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import com.example.supervisorar.R
 import com.example.supervisorar.databinding.FragmentSupervisingScreenBinding
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
 import com.google.ar.core.Anchor
+import com.google.ar.sceneform.collision.Box
+import com.google.ar.sceneform.rendering.ModelRenderable
+import com.google.ar.sceneform.rendering.ViewRenderable
 import io.github.sceneview.ar.ArSceneView
-import io.github.sceneview.ar.node.CursorNode
-import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.node.ModelNode
+import io.github.sceneview.ar.arcore.LightEstimationMode
+import io.github.sceneview.ar.node.ArModelNode
+import io.github.sceneview.ar.node.PlacementMode
+import io.github.sceneview.node.Node
+import kotlinx.coroutines.future.await
 import org.koin.android.ext.android.inject
 
 class SupervisingScreenFragment : Fragment() {
@@ -23,14 +30,16 @@ class SupervisingScreenFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var sceneView: ArSceneView
-    private lateinit var cursorNode: CursorNode
+    private lateinit var modelNode: ArModelNode
+    private lateinit var textNode: Node
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentSupervisingScreenBinding.inflate(inflater,container, false)
+        _binding = FragmentSupervisingScreenBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -39,58 +48,42 @@ class SupervisingScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupArSceneView()
         setupActionButton()
-        viewModel.title.observe(viewLifecycleOwner){
+        viewModel.title.observe(viewLifecycleOwner) {
             binding.textinhoo.text = it
-        }
-
-        lifecycleScope.launchWhenCreated {
-            load3dImages(viewModel.modelNode.value!!, sceneView)
         }
     }
 
     private fun setupActionButton() {
         binding.actionButton.setOnClickListener {
-            cursorNode.createAnchor()?.let { anchorOrMove(it) }
+
         }
     }
 
     private fun setupArSceneView() {
         sceneView = binding.supervisorSceneView
-        sceneView.isDepthOcclusionEnabled = true
-        sceneView.cameraNode.position = Position(x = 0.0f, y = 0.0f)
-        sceneView.cameraNode.rotation = Rotation(x = 0.0f, y = 80.0f)
+        sceneView.lightEstimationMode = LightEstimationMode.DISABLED
+        modelNode = ArModelNode(
+            placementMode = PlacementMode.PLANE_HORIZONTAL,
+            instantAnchor = false,
+            followHitPosition = true
+        ).apply {
+            collisionShape = Box()
 
-        sceneView.onTapAr = { hitResult, _ ->
-            anchorOrMove(hitResult.createAnchor())
-        }
-
-        cursorNode = CursorNode(context = requireContext(), lifecycle = lifecycle)
-
-        sceneView.addChild(cursorNode)
-    }
-
-    private suspend fun load3dImages(modelNode: ModelNode, sceneView: ArSceneView) {
-        modelNode.loadModel(
-            context = requireContext(),
-            lifecycle = lifecycle,
-            glbFileLocation = "https://sceneview.github.io/assets/models/Halloween.glb",
-            autoAnimate = true,
-            centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
-        )
-
-        sceneView.cameraNode.smooth(
-            position = Position(x = -1.0f, y = 1.5f, z = -3.5f),
-            rotation = Rotation(x = -60.0f, y = -50.0f),
-            speed = 0.5f
-        )
-    }
-
-    private fun anchorOrMove(anchor: Anchor) {
-        val modelNode = viewModel.modelNode.value!!
-
-        if (!sceneView.children.contains(modelNode)) {
-            sceneView.addChild(modelNode)
-        }
-        modelNode.anchor = anchor
+            loadModelGlbAsync(
+                glbFileLocation = "3dmodels/energymeter.glb"
+            ) {
+                sceneView.planeRenderer.isVisible = true
+            }
+//        }
+//        sceneView.geospatialEnabled
+//        modelNode.collider
+//        sceneView.addChild(modelNode)
+//        sceneView.onTapAr = { hitResult, motionEvent ->
+//            if (motionEvent.action == MotionEvent.ACTION_UP) {
+//                modelNode.anchor?.detach()
+//                modelNode.anchor = hitResult.createAnchor()
+//                modelNode.parent = sceneView
+//            }
+//        }
     }
 }

@@ -8,7 +8,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.supervisorar.R
 import com.example.supervisorar.databinding.ActivityMainBinding
-import com.example.supervisorar.infrastructure.DI.SupervisorarDI
+import com.example.supervisorar.infrastructure.di.SupervisorarDI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.java.KoinAndroidApplication

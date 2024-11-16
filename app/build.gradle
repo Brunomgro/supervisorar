@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.supervisorar"
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -23,29 +23,43 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_16
+        targetCompatibility JavaVersion.VERSION_16
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    aaptOptions {
+        noCompress 'filamat', 'ktx'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
 dependencies {
 
+    //Basic setup stuff
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    implementation 'com.karumi:dexter:5.0.0'
-    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.17.1'
-    //noinspection GradleCompatible
-    implementation 'com.android.support:support-v4:28.0.0'
     implementation 'android.arch.lifecycle:livedata:1.1.1'
     implementation 'android.arch.lifecycle:viewmodel:1.1.1'
     implementation "io.insert-koin:koin-android:3.2.0"
+    //noinspection GradleCompatible
+    implementation 'com.android.support:support-v4:28.0.0'
+
+    //specific setup stuff
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    //Business dependencies
+    implementation 'io.github.sceneview:arsceneview:0.9.8'
+    implementation 'com.google.mlkit:barcode-scanning:17.0.3'
 
     testImplementation 'junit:junit:4.13.2'
 

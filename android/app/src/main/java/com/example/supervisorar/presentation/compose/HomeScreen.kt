@@ -2,6 +2,9 @@ package com.example.supervisorar.presentation.compose
 
 import android.os.Build
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -23,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.coordinatorlayout.widget.ViewGroupUtils
+import com.example.supervisorar.R
 import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
 import com.google.android.filament.Texture
@@ -74,17 +79,7 @@ fun HomeScreen(
                 windowManager = ViewNode2.WindowManager(context),
                 materialLoader = materialLoader,
                 unlit = true,
-                view = ComposeView(materialLoader.context).apply {
-                    setContent {
-                        MaterialTheme() {
-                            Text(
-                                modifier = Modifier.fillMaxSize().background(Color.Transparent),
-                                text = "100",
-                                color = Color.Red,
-                            )
-                        }
-                    }
-                }
+                view = LayoutInflater.from(context).inflate(R.layout.texto_teste, null)
                 )
 //            ) {
 //                MaterialTheme() {

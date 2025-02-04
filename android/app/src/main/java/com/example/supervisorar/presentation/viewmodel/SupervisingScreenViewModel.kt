@@ -27,7 +27,6 @@ class SupervisingScreenViewModel(
         image: () -> Image,
         onFinish: (QrCodeInfo?) -> Unit
     ) {
-        if (job?.isCompleted == false && isTracking) return
         job = launch(coroutineContext) {
             val imageFrame = runCatching { image() }.fold(
                 onSuccess = { it },

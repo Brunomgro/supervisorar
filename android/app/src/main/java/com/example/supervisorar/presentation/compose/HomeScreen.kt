@@ -32,6 +32,7 @@ import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
 import com.google.android.filament.Texture
 import com.google.ar.core.Config
+import com.google.ar.core.Frame
 import com.google.ar.core.HitResult
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.Scene
@@ -52,6 +53,7 @@ import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
+import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberScene
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -71,35 +73,18 @@ fun HomeScreen(
     val modelLoader = rememberModelLoader(engine)
     val nodes = rememberNodes {}
     var foundQrCode by remember { mutableStateOf(false) }
+    var currentFrame: Frame? by remember { mutableStateOf(null) }
 
     var meterNode: ModelNode? = remember { null }
-    var viewNode: ViewNode2 = remember {
-            ViewNode2(
-                engine = engine,
-                windowManager = ViewNode2.WindowManager(context),
-                materialLoader = materialLoader,
-                unlit = true,
-                view = LayoutInflater.from(context).inflate(R.layout.texto_teste, null)
-                )
-//            ) {
-//                MaterialTheme() {
-//                    Text(
-//                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
-//                        text = "100",
-//                        color = Color.Red,
-//                    )
-//                }
-//            }
-        }
+
     LaunchedEffect(Unit) {
-        viewNode.isEditable = true
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
             ModelNode(
                 modelInstance = it.instance,
-                scaleToUnits = 0.2f,
+                scaleToUnits = 0.1f,
             ).apply {
                 val angles = Quaternion.eulerAngles(Vector3(0f, 180f, 0f))
-                rotation = Rotation(angles.x, angles.y, angles.z)
+//                rotation = Rotation(angles.x, angles.y, angles.z)
                 isEditable = true
                 this.halfExtent
             }
@@ -116,40 +101,36 @@ fun HomeScreen(
         sessionCameraConfig = { session ->
             session.cameraConfig
         }, sessionConfiguration = { session, config ->
-            config.depthMode = Config.DepthMode.AUTOMATIC
+            config.depthMode = Config.DepthMode.DISABLED
             config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
-            config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+            config.lightEstimationMode = Config.LightEstimationMode.DISABLED
             config.focusMode = Config.FocusMode.AUTO
             config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE)
-            config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
+            config.planeFindingMode = Config.PlaneFindingMode.DISABLED
+            config.semanticMode = Config.SemanticMode.DISABLED
         },
         planeRenderer = true,
         cameraStream = cameraStream,
-        onSessionCreated = { session ->
-        },
-        onSessionResumed = { session ->
-        },
-        onSessionPaused = { session ->
-        },
-        onSessionUpdated = { session, updatedFrame ->
-            runCatching {
-                if (foundQrCode) return@runCatching
+        onGestureListener = rememberOnGestureListener(
+            onSingleTapConfirmed = { motionEvent, node ->
+                val frame = currentFrame ?: return@rememberOnGestureListener
                 viewModel.findQrCode(
-                    image = { updatedFrame.acquireCameraImage() },
+                    image = { frame.acquireCameraImage() },
                     onFinish =  { info ->
                         val bounds = info?.bounds ?: return@findQrCode
 
-                        val hitResult = updatedFrame.hitTest(
+                        val hitResult = frame.hitTest(
                             bounds.centerX().toFloat(),
                             bounds.centerY().toFloat()
                         ).firstOrNull() ?: return@findQrCode
 
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
-                        val anchorNode = AnchorNode(engine, anchor)
+                        val anchorNode = AnchorNode(engine, anchor).apply {
 
-                        viewNode?.let {
+                        }
+
+                        meterNode?.let {
                             nodes.add(it.apply { parent = anchorNode })
-                            foundQrCode = true
                         }
 
                         /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
@@ -168,6 +149,53 @@ fun HomeScreen(
                     }
                 )
             }
+        ),
+        onSessionCreated = { session ->
+        },
+        onSessionResumed = { session ->
+        },
+        onSessionPaused = { session ->
+        },
+        onSessionUpdated = { session, updatedFrame ->
+            currentFrame = updatedFrame
+//            runCatching {
+//                if (foundQrCode) return@runCatching
+//                viewModel.findQrCode(
+//                    image = { updatedFrame.acquireCameraImage() },
+//                    onFinish =  { info ->
+//                        val bounds = info?.bounds ?: return@findQrCode
+//
+//                        val hitResult = updatedFrame.hitTest(
+//                            bounds.centerX().toFloat(),
+//                            bounds.centerY().toFloat()
+//                        ).firstOrNull() ?: return@findQrCode
+//
+//                        val anchor = hitResult.createAnchor() ?: return@findQrCode
+//                        val anchorNode = AnchorNode(engine, anchor).apply {
+//
+//                        }
+//
+//                        meterNode?.let {
+//                            nodes.add(it.apply { parent = anchorNode })
+//                            foundQrCode = true
+//                        }
+//
+//                        /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
+//                        it ?: return@loadModelAsync
+//                        nodes.add(
+//                        ModelNode(
+//                        modelInstance = it.instance,
+//                        scaleToUnits = 0.5f,
+//                        centerOrigin = anchor.pose.position
+//                        ).apply {
+//                        parent = anchorNode
+//                        isEditable = true
+//                        }
+//                        )
+//                        }*/
+//                    }
+//                )
+//            }
         },
         // Invoked when an ARCore error occurred.
         // Registers a callback to be invoked when the ARCore Session cannot be initialized because

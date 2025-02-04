@@ -76,7 +76,7 @@ fun HomeScreen(
             config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
             config.focusMode = Config.FocusMode.AUTO
             config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE)
-            config.planeFindingMode = Config.PlaneFindingMode.VERTICAL
+            config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
         },
         planeRenderer = true,
         cameraStream = cameraStream,

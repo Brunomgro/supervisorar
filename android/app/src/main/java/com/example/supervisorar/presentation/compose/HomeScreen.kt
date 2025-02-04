@@ -67,24 +67,24 @@ fun HomeScreen(
     var foundQrCode by remember { mutableStateOf(false) }
 
     var meterNode: ModelNode? = remember { null }
-   // var viewNode: ViewNode2 = remember {
-    //        ViewNode2(
-    //            engine = engine,
-    //            windowManager = ViewNode2.WindowManager(context),
-    //            materialLoader = materialLoader,
-    //            unlit = true,
-    //        ) {
-    //            MaterialTheme {
-    //                Text(
-    //                    modifier = Modifier.fillMaxSize(),
-    //                    text = "100",
-    //                    color = Color.Red
-    //                )
-    //            }
-    //        }
-    //    }
+    var viewNode: ViewNode2 = remember {
+            ViewNode2(
+                engine = engine,
+                windowManager = ViewNode2.WindowManager(context),
+                materialLoader = materialLoader,
+                unlit = true,
+            ) {
+                MaterialTheme() {
+                    Text(
+                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
+                        text = "100",
+                        color = Color.Red,
+                    )
+                }
+            }
+        }
     LaunchedEffect(Unit) {
-       // viewNode.isEditable = true
+        viewNode.isEditable = true
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
             ModelNode(
                 modelInstance = it.instance,
@@ -139,7 +139,7 @@ fun HomeScreen(
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)
 
-                        meterNode?.let {
+                        viewNode?.let {
                             nodes.add(it.apply { parent = anchorNode })
                             foundQrCode = true
                         }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
+import com.google.android.filament.Texture
 import com.google.ar.core.Config
 import com.google.ar.core.HitResult
 import io.github.sceneview.ar.ARScene
@@ -36,6 +38,8 @@ import io.github.sceneview.collision.Quaternion
 import io.github.sceneview.collision.Vector3
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.CylinderNode
+import io.github.sceneview.node.ImageNode
+import io.github.sceneview.node.LightNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.ViewNode2
 import io.github.sceneview.rememberEngine
@@ -63,25 +67,22 @@ fun HomeScreen(
     var foundQrCode by remember { mutableStateOf(false) }
 
     var meterNode: ModelNode? = remember { null }
-    var viewNode: ViewNode2 = ViewNode2(
-        engine = engine,
-        windowManager = ViewNode2.WindowManager(context),
-        materialLoader = materialLoader,
-        unlit = true,
-        invertFrontFaceWinding = true,
-    ) {
-        Box(Modifier.fillMaxSize().background(Color.White)) {
-            Text(
-                modifier = Modifier.fillMaxSize(),
-                text = "100",
-                color = Color.Red
-            )
-            Box(Modifier.width(200.dp).height(200.dp).background(Color.Blue)){
-
+    var viewNode: ViewNode2 = remember {
+        ViewNode2(
+            engine = engine,
+            windowManager = ViewNode2.WindowManager(context),
+            materialLoader = materialLoader,
+            unlit = true,
+        ) {
+            MaterialTheme {
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = "100",
+                    color = Color.Red
+                )
             }
         }
     }
-
     LaunchedEffect(Unit) {
         viewNode.isEditable = true
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
@@ -134,8 +135,6 @@ fun HomeScreen(
                             bounds.centerX().toFloat(),
                             bounds.centerY().toFloat()
                         ).firstOrNull() ?: return@findQrCode
-
-                        //if (hitResult.trackable.isTracking) return@findQrCode
 
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)

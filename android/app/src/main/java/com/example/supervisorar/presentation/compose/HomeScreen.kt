@@ -60,10 +60,11 @@ fun HomeScreen(
             session.cameraConfig
         }, sessionConfiguration = { session, config ->
             config.depthMode = Config.DepthMode.AUTOMATIC
-            config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
+            config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
             config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
             config.focusMode = Config.FocusMode.AUTO
             config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE)
+            config.planeFindingMode = Config.PlaneFindingMode.VERTICAL
         },
         planeRenderer = true,
         cameraStream = cameraStream,
@@ -91,15 +92,17 @@ fun HomeScreen(
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)
                         foundQrCode = true
-                        coroutine.launch {
-                            val model = modelLoader.loadModel(Models3d.Energymeter.path) ?: return@launch
+
+                        modelLoader.loadModelAsync(Models3d.Energymeter.path) {
+                            it ?: return@loadModelAsync
                             nodes.add(
                                 ModelNode(
-                                    modelInstance = model.instance,
+                                    modelInstance = it.instance,
                                     scaleToUnits = 0.5f,
                                     centerOrigin = anchor.pose.position
                                 ).apply {
                                     parent = anchorNode
+                                    isEditable = true
                                 }
                             )
                         }

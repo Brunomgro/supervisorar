@@ -106,7 +106,7 @@ fun HomeScreen(
             config.lightEstimationMode = Config.LightEstimationMode.DISABLED
             config.focusMode = Config.FocusMode.AUTO
             config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE)
-            config.planeFindingMode = Config.PlaneFindingMode.DISABLED
+            config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
             config.semanticMode = Config.SemanticMode.DISABLED
         },
         planeRenderer = true,

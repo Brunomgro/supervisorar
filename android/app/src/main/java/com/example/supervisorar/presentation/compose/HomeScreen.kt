@@ -80,7 +80,7 @@ fun HomeScreen(
                             bounds.centerY().toFloat()
                         ).firstOrNull() ?: return@findQrCode
 
-                       // if (hitResult.trackable.isTracking) return@findQrCode
+                        if (hitResult.trackable.isTracking) return@findQrCode
 
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)

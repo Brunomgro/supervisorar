@@ -60,7 +60,7 @@ fun HomeScreen(
                 scaleToUnits = 0.5f,
             ).apply {
                 isEditable = true
-                val angles = Quaternion.eulerAngles(Vector3(0f, 90f, 0f))
+                val angles = Quaternion.eulerAngles(Vector3(0f, 180f, 0f))
 
                 rotation = Rotation(angles.x, angles.y, angles.z)
             }

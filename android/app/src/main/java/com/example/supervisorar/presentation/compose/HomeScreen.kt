@@ -113,16 +113,23 @@ fun HomeScreen(
         cameraStream = cameraStream,
         onGestureListener = rememberOnGestureListener(
             onSingleTapConfirmed = { motionEvent, node ->
+                Toast.makeText(context, "Tap confirmed", Toast.LENGTH_SHORT).show()
                 val frame = currentFrame ?: return@rememberOnGestureListener
+                Toast.makeText(context, "Found frame", Toast.LENGTH_SHORT).show()
                 viewModel.findQrCode(
                     image = { frame.acquireCameraImage() },
                     onFinish =  { info ->
+
                         val bounds = info?.bounds ?: return@findQrCode
+                        Toast.makeText(context, "Bounds confirmed", Toast.LENGTH_SHORT).show()
 
                         val hitResult = frame.hitTest(
                             bounds.centerX().toFloat(),
                             bounds.centerY().toFloat()
                         ).firstOrNull() ?: return@findQrCode
+
+                        Toast.makeText(context, "HitResult confirmed", Toast.LENGTH_SHORT).show()
+
 
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor).apply {

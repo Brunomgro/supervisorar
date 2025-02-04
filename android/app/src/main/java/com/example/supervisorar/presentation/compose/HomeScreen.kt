@@ -48,15 +48,15 @@ fun HomeScreen(
     val nodes = rememberNodes {}
     var foundQrCode by remember { mutableStateOf(false) }
 
-    val meterNode = remember {
-        runBlocking {
-            modelLoader.loadModel(Models3d.Energymeter.path)?.let {
-                ModelNode(
-                    modelInstance = it.instance,
-                    scaleToUnits = 0.5f,
-                ).apply {
-                    isEditable = true
-                }
+    var meterNode: ModelNode? = remember { null }
+
+    LaunchedEffect(Unit) {
+       meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
+            ModelNode(
+                modelInstance = it.instance,
+                scaleToUnits = 0.5f,
+            ).apply {
+                isEditable = true
             }
         }
     }
@@ -103,9 +103,11 @@ fun HomeScreen(
 
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)
-                        foundQrCode = true
 
-                        meterNode?.let { nodes.add(it.apply { parent = anchorNode }) }
+                        meterNode?.let {
+                            nodes.add(it.apply { parent = anchorNode })
+                            foundQrCode = true
+                        }
 
                         /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
                         it ?: return@loadModelAsync

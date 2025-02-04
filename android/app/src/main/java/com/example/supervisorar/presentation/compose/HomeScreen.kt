@@ -20,6 +20,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.supervisorar.models.Models3d
@@ -73,15 +74,27 @@ fun HomeScreen(
                 windowManager = ViewNode2.WindowManager(context),
                 materialLoader = materialLoader,
                 unlit = true,
-            ) {
-                MaterialTheme() {
-                    Text(
-                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
-                        text = "100",
-                        color = Color.Red,
-                    )
+                view = ComposeView(materialLoader.context).apply {
+                    setContent {
+                        MaterialTheme() {
+                            Text(
+                                modifier = Modifier.fillMaxSize().background(Color.Transparent),
+                                text = "100",
+                                color = Color.Red,
+                            )
+                        }
+                    }
                 }
-            }
+                )
+//            ) {
+//                MaterialTheme() {
+//                    Text(
+//                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
+//                        text = "100",
+//                        color = Color.Red,
+//                    )
+//                }
+//            }
         }
     LaunchedEffect(Unit) {
         viewNode.isEditable = true

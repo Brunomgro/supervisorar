@@ -67,33 +67,33 @@ fun HomeScreen(
     var foundQrCode by remember { mutableStateOf(false) }
 
     var meterNode: ModelNode? = remember { null }
-    var viewNode: ViewNode2 = remember {
-        ViewNode2(
-            engine = engine,
-            windowManager = ViewNode2.WindowManager(context),
-            materialLoader = materialLoader,
-            unlit = true,
-        ) {
-            MaterialTheme {
-                Text(
-                    modifier = Modifier.fillMaxSize(),
-                    text = "100",
-                    color = Color.Red
-                )
-            }
-        }
-    }
+   // var viewNode: ViewNode2 = remember {
+    //        ViewNode2(
+    //            engine = engine,
+    //            windowManager = ViewNode2.WindowManager(context),
+    //            materialLoader = materialLoader,
+    //            unlit = true,
+    //        ) {
+    //            MaterialTheme {
+    //                Text(
+    //                    modifier = Modifier.fillMaxSize(),
+    //                    text = "100",
+    //                    color = Color.Red
+    //                )
+    //            }
+    //        }
+    //    }
     LaunchedEffect(Unit) {
-        viewNode.isEditable = true
+       // viewNode.isEditable = true
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
             ModelNode(
                 modelInstance = it.instance,
-                scaleToUnits = 0.5f,
+                scaleToUnits = 0.2f,
             ).apply {
-                isEditable = true
                 val angles = Quaternion.eulerAngles(Vector3(0f, 180f, 0f))
-
                 rotation = Rotation(angles.x, angles.y, angles.z)
+                isEditable = true
+                this.halfExtent
             }
         }
     }

@@ -23,6 +23,9 @@ import io.github.sceneview.ar.arcore.isTracking
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraStream
+import io.github.sceneview.collision.Quaternion
+import io.github.sceneview.collision.Vector3
+import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.CylinderNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberEngine
@@ -57,6 +60,9 @@ fun HomeScreen(
                 scaleToUnits = 0.5f,
             ).apply {
                 isEditable = true
+                val angles = Quaternion.eulerAngles(Vector3(0f, 90f, 0f))
+
+                rotation = Rotation(angles.x, angles.y, angles.z)
             }
         }
     }

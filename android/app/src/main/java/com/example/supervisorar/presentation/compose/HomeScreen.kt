@@ -139,7 +139,7 @@ fun HomeScreen(
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)
 
-                        viewNode?.let {
+                        meterNode?.let {
                             nodes.add(it.apply { parent = anchorNode })
                             foundQrCode = true
                         }

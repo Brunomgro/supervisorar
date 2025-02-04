@@ -31,6 +31,7 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberScene
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -44,10 +45,21 @@ fun HomeScreen(
     val materialLoader = rememberMaterialLoader(engine)
     val cameraStream = rememberARCameraStream(materialLoader)
     val modelLoader = rememberModelLoader(engine)
-    val nodes = rememberNodes {
-        add(CylinderNode(engine))
-    }
+    val nodes = rememberNodes {}
     var foundQrCode by remember { mutableStateOf(false) }
+
+    val meterNode = remember {
+        runBlocking {
+            modelLoader.loadModel(Models3d.Energymeter.path)?.let {
+                ModelNode(
+                    modelInstance = it.instance,
+                    scaleToUnits = 0.5f,
+                ).apply {
+                    isEditable = true
+                }
+            }
+        }
+    }
 
     ARScene(
         modifier = Modifier.fillMaxSize(),
@@ -93,19 +105,21 @@ fun HomeScreen(
                         val anchorNode = AnchorNode(engine, anchor)
                         foundQrCode = true
 
-                        modelLoader.loadModelAsync(Models3d.Energymeter.path) {
-                            it ?: return@loadModelAsync
-                            nodes.add(
-                                ModelNode(
-                                    modelInstance = it.instance,
-                                    scaleToUnits = 0.5f,
-                                    centerOrigin = anchor.pose.position
-                                ).apply {
-                                    parent = anchorNode
-                                    isEditable = true
-                                }
-                            )
+                        meterNode?.let { nodes.add(it.apply { parent = anchorNode }) }
+
+                        /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
+                        it ?: return@loadModelAsync
+                        nodes.add(
+                        ModelNode(
+                        modelInstance = it.instance,
+                        scaleToUnits = 0.5f,
+                        centerOrigin = anchor.pose.position
+                        ).apply {
+                        parent = anchorNode
+                        isEditable = true
                         }
+                        )
+                        }*/
                     }
                 )
             }

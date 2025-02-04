@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
@@ -58,14 +59,17 @@ fun HomeScreen(
 
     var meterNode: ModelNode? = remember { null }
     var viewNode: ViewNode2 = ViewNode2(
-        engine,
-        ViewNode2.WindowManager(context),
-        materialLoader
+        engine = engine,
+        windowManager = ViewNode2.WindowManager(context),
+        materialLoader = materialLoader,
+        unlit = true,
+        invertFrontFaceWinding = true,
     ) {
-        Text("100°")
+        Text("100", color = Color.Red)
     }
 
     LaunchedEffect(Unit) {
+        viewNode.isEditable = true
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
             ModelNode(
                 modelInstance = it.instance,

@@ -4,7 +4,11 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
 import com.google.ar.core.Config
@@ -65,7 +70,16 @@ fun HomeScreen(
         unlit = true,
         invertFrontFaceWinding = true,
     ) {
-        Text("100", color = Color.Red)
+        Box(Modifier.fillMaxSize().background(Color.White)) {
+            Text(
+                modifier = Modifier.fillMaxSize(),
+                text = "100",
+                color = Color.Red
+            )
+            Box(Modifier.width(200.dp).height(200.dp).background(Color.Blue)){
+
+            }
+        }
     }
 
     LaunchedEffect(Unit) {

@@ -1,8 +1,11 @@
 package com.example.supervisorar.presentation.compose
 
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +31,7 @@ import io.github.sceneview.collision.Vector3
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.CylinderNode
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.ViewNode2
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberModelLoader
@@ -37,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(
     viewModel: SupervisingScreenViewModel = koinViewModel()
@@ -52,6 +57,13 @@ fun HomeScreen(
     var foundQrCode by remember { mutableStateOf(false) }
 
     var meterNode: ModelNode? = remember { null }
+    var viewNode: ViewNode2 = ViewNode2(
+        engine,
+        ViewNode2.WindowManager(context),
+        materialLoader
+    ) {
+        Text("100°")
+    }
 
     LaunchedEffect(Unit) {
        meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
@@ -110,7 +122,7 @@ fun HomeScreen(
                         val anchor = hitResult.createAnchor() ?: return@findQrCode
                         val anchorNode = AnchorNode(engine, anchor)
 
-                        meterNode?.let {
+                        viewNode?.let {
                             nodes.add(it.apply { parent = anchorNode })
                             foundQrCode = true
                         }

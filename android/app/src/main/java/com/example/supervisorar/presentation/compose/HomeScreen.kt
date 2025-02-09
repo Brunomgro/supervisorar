@@ -1,218 +1,161 @@
 package com.example.supervisorar.presentation.compose
 
+import android.graphics.BitmapFactory
 import android.os.Build
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.coordinatorlayout.widget.ViewGroupUtils
-import com.example.supervisorar.R
 import com.example.supervisorar.models.Models3d
 import com.example.supervisorar.presentation.viewmodel.SupervisingScreenViewModel
-import com.google.android.filament.Texture
 import com.google.ar.core.Config
-import com.google.ar.core.Frame
-import com.google.ar.core.HitResult
+import com.google.ar.core.Session
+import dev.romainguy.kotlin.math.Float3
+import dev.romainguy.kotlin.math.Quaternion
+import dev.romainguy.kotlin.math.RotationsOrder
 import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.Scene
-import io.github.sceneview.ar.arcore.createAnchorOrNull
-import io.github.sceneview.ar.arcore.isTracking
-import io.github.sceneview.ar.arcore.position
-import io.github.sceneview.ar.node.AnchorNode
-import io.github.sceneview.ar.rememberARCameraStream
-import io.github.sceneview.collision.Quaternion
-import io.github.sceneview.collision.Vector3
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.node.CylinderNode
-import io.github.sceneview.node.ImageNode
-import io.github.sceneview.node.LightNode
+import io.github.sceneview.ar.arcore.addAugmentedImage
+import io.github.sceneview.ar.arcore.getUpdatedAugmentedImages
+import io.github.sceneview.ar.node.AugmentedImageNode
+import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ModelNode
-import io.github.sceneview.node.ViewNode2
+import io.github.sceneview.node.Node
+import io.github.sceneview.node.PlaneNode
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
-import io.github.sceneview.rememberOnGestureListener
-import io.github.sceneview.rememberScene
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
-@RequiresApi(Build.VERSION_CODES.P)
+fun Node.findChildRecursive(name: String): Node? {
+    if (this.name == name) return this
+
+    for (child in this.childNodes) {
+        val result = child.findChildRecursive(name)
+        if (result != null) return result
+    }
+
+    return null
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun HomeScreen(
     viewModel: SupervisingScreenViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val coroutine = rememberCoroutineScope()
     val engine = rememberEngine()
-    val scene = rememberScene(engine)
-    val materialLoader = rememberMaterialLoader(engine)
-    val cameraStream = rememberARCameraStream(materialLoader)
     val modelLoader = rememberModelLoader(engine)
     val nodes = rememberNodes {}
-    var foundQrCode by remember { mutableStateOf(false) }
-    var currentFrame: Frame? by remember { mutableStateOf(null) }
+    var augmentedImageNodes by remember { mutableStateOf(listOf<AugmentedImageNode>()) }
+    val materialLoader = rememberMaterialLoader(engine)
 
-    var meterNode: ModelNode? = remember { null }
+    fun updatePointer(pointerNode: Node, value: Float) {
+        val minValue = 0f
+        val maxValue = 5000f
+        val minAngle = -135f // graus
+        val maxAngle = 135f // graus
 
-    LaunchedEffect(Unit) {
-       meterNode =  modelLoader.loadModel(Models3d.Energymeter.path)?.let {
-            ModelNode(
-                modelInstance = it.instance,
-                scaleToUnits = 0.1f,
-            ).apply {
-                val angles = Quaternion.eulerAngles(Vector3(0f, 180f, 0f))
-//                rotation = Rotation(angles.x, angles.y, angles.z)
-                isEditable = true
-                this.halfExtent
-            }
+        val angle = ((value - minValue) / (maxValue - minValue)) * (maxAngle - minAngle) + minAngle
+
+        pointerNode.rotation = Quaternion
+            .fromAxisAngle(Float3(0f, 1f, 0f), angle)
+            .toRotation(RotationsOrder.YXZ)
+    }
+
+    var pointerNode: Node? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(pointerNode) {
+        pointerNode?.let {
+            updatePointer(it, 0f)
         }
+    }
+
+    val meterNode = remember {
+        ModelNode(
+            modelInstance = modelLoader.createModelInstance(
+                assetFileLocation = Models3d.Energymeter.path
+            ),
+            scaleToUnits = 0.08f,
+            centerOrigin = null,
+            autoAnimate = false
+        ).also {
+            it.isShadowCaster = false
+            it.isShadowReceiver = false
+            it.rotation = Quaternion
+                .fromAxisAngle(Float3(1f, 0f, 0f), -90f)
+                .toRotation(RotationsOrder.XYZ)
+            pointerNode = it.findChildRecursive("Body1.003")
+        }
+    }
+
+    val easyNode = remember {
+
+
+        PlaneNode(engine)
     }
 
     ARScene(
         modifier = Modifier.fillMaxSize(),
-        scene = scene,
         childNodes = nodes,
         modelLoader = modelLoader,
-        sessionFeatures = setOf(),
+        materialLoader = materialLoader,
+        sessionFeatures = setOf(Session.Feature.SHARED_CAMERA),
         engine = engine,
-        sessionCameraConfig = { session ->
-            session.cameraConfig
-        }, sessionConfiguration = { session, config ->
+        sessionConfiguration = { session, config ->
+            config.addAugmentedImage(
+                session = session,
+                name = "maquina1",
+                bitmap = context.assets.open(Models3d.Maquina1.path)
+                    .use(BitmapFactory::decodeStream),
+            )
             config.depthMode = Config.DepthMode.DISABLED
             config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
             config.lightEstimationMode = Config.LightEstimationMode.DISABLED
             config.focusMode = Config.FocusMode.AUTO
             config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE)
-            config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
-            config.semanticMode = Config.SemanticMode.DISABLED
+            config.planeFindingMode = Config.PlaneFindingMode.VERTICAL
         },
-        planeRenderer = true,
-        cameraStream = cameraStream,
-        onGestureListener = rememberOnGestureListener(
-            onSingleTapConfirmed = { motionEvent, node ->
-                Toast.makeText(context, "Tap confirmed", Toast.LENGTH_SHORT).show()
-                val frame = currentFrame ?: return@rememberOnGestureListener
-                Toast.makeText(context, "Found frame", Toast.LENGTH_SHORT).show()
-                viewModel.findQrCode(
-                    image = { frame.acquireCameraImage() },
-                    onFinish =  { info ->
-
-                        val bounds = info?.bounds ?: return@findQrCode
-                        Toast.makeText(context, "Bounds confirmed", Toast.LENGTH_SHORT).show()
-
-                        val hitResult = frame.hitTest(
-                            bounds.centerX().toFloat(),
-                            bounds.centerY().toFloat()
-                        ).firstOrNull() ?: return@findQrCode
-
-                        Toast.makeText(context, "HitResult confirmed", Toast.LENGTH_SHORT).show()
-
-
-                        val anchor = hitResult.createAnchor() ?: return@findQrCode
-                        val anchorNode = AnchorNode(engine, anchor).apply {
-
-                        }
-
-                        meterNode?.let {
-                            nodes.add(it.apply { parent = anchorNode })
-                        }
-
-                        /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
-                        it ?: return@loadModelAsync
-                        nodes.add(
-                        ModelNode(
-                        modelInstance = it.instance,
-                        scaleToUnits = 0.5f,
-                        centerOrigin = anchor.pose.position
-                        ).apply {
-                        parent = anchorNode
-                        isEditable = true
-                        }
-                        )
-                        }*/
-                    }
-                )
-            }
-        ),
-        onSessionCreated = { session ->
+        planeRenderer = false,
+        onSessionCreated = { _ ->
+            Toast.makeText(context, "session created", Toast.LENGTH_SHORT).show()
         },
-        onSessionResumed = { session ->
+        onSessionResumed = { _ ->
+            Toast.makeText(context, "session resumed", Toast.LENGTH_SHORT).show()
         },
-        onSessionPaused = { session ->
+        onSessionPaused = { _ ->
+            Toast.makeText(context, "session paused", Toast.LENGTH_SHORT).show()
         },
         onSessionUpdated = { session, updatedFrame ->
-            currentFrame = updatedFrame
-//            runCatching {
-//                if (foundQrCode) return@runCatching
-//                viewModel.findQrCode(
-//                    image = { updatedFrame.acquireCameraImage() },
-//                    onFinish =  { info ->
-//                        val bounds = info?.bounds ?: return@findQrCode
-//
-//                        val hitResult = updatedFrame.hitTest(
-//                            bounds.centerX().toFloat(),
-//                            bounds.centerY().toFloat()
-//                        ).firstOrNull() ?: return@findQrCode
-//
-//                        val anchor = hitResult.createAnchor() ?: return@findQrCode
-//                        val anchorNode = AnchorNode(engine, anchor).apply {
-//
-//                        }
-//
-//                        meterNode?.let {
-//                            nodes.add(it.apply { parent = anchorNode })
-//                            foundQrCode = true
-//                        }
-//
-//                        /**modelLoader.loadModelAsync(Models3d.Energymeter.path) {
-//                        it ?: return@loadModelAsync
-//                        nodes.add(
-//                        ModelNode(
-//                        modelInstance = it.instance,
-//                        scaleToUnits = 0.5f,
-//                        centerOrigin = anchor.pose.position
-//                        ).apply {
-//                        parent = anchorNode
-//                        isEditable = true
-//                        }
-//                        )
-//                        }*/
-//                    }
-//                )
-//            }
+            updatedFrame.getUpdatedAugmentedImages().forEach { augmentedImage ->
+                if (augmentedImageNodes.none { it.imageName == augmentedImage.name }) {
+                    val augmentedImageNode = AugmentedImageNode(
+                        engine,
+                        augmentedImage
+                    ).apply {
+                        when (augmentedImage.name) {
+                            "maquina1" -> addChildNode(meterNode)
+
+                            "qrcode" -> {}
+                        }
+                    }
+                    nodes.add(augmentedImageNode)
+                    augmentedImageNodes += augmentedImageNode
+                }
+            }
         },
-        // Invoked when an ARCore error occurred.
-        // Registers a callback to be invoked when the ARCore Session cannot be initialized because
-        // ARCore is not available on the device or the camera permission has been denied.
         onSessionFailed = { exception ->
+            Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
         },
-        // Listen for camera tracking failure.
-        // The reason that [Camera.getTrackingState] is [TrackingState.PAUSED] or `null` if it is
-        // [TrackingState.TRACKING]
         onTrackingFailureChanged = { trackingFailureReason ->
+            Toast.makeText(context, trackingFailureReason.toString(), Toast.LENGTH_SHORT).show()
         }
     )
 }

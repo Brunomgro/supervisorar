@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -22,6 +23,10 @@ class SupervisingScreenViewModel(
 ) : ViewModel(), CoroutineScope {
     var isTracking = true
     var job: Job? = null
+
+    val temperatureData = useCase.getInfo().map {
+        it.firstOrNull()
+    }
 
     fun findQrCode(
         image: () -> Image,
@@ -38,8 +43,8 @@ class SupervisingScreenViewModel(
     }
 
     init {
-        viewModelScope.launch {
-            val info = useCase.getInfo()
-        }
+//        viewModelScope.launch {
+//            val info = useCase.getInfo()
+//        }
     }
 }

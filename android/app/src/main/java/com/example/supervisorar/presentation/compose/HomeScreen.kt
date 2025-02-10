@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,6 @@ import io.github.sceneview.ar.node.AugmentedImageNode
 import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
-import io.github.sceneview.node.PlaneNode
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberModelLoader
@@ -57,24 +57,27 @@ fun HomeScreen(
     var augmentedImageNodes by remember { mutableStateOf(listOf<AugmentedImageNode>()) }
     val materialLoader = rememberMaterialLoader(engine)
 
+    val temperatura by viewModel.temperatureData.collectAsState(null)
+
     fun updatePointer(pointerNode: Node, value: Float) {
         val minValue = 0f
         val maxValue = 5000f
-        val minAngle = -135f // graus
-        val maxAngle = 135f // graus
 
-        val angle = ((value - minValue) / (maxValue - minValue)) * (maxAngle - minAngle) + minAngle
+        val minAngle = 0 + 330
+        val maxAngle = 270 + 330 // de off set?
+
+        val valueToAngle = ((value - minValue) / (maxValue - minValue)) * (maxAngle - minAngle) + minAngle
 
         pointerNode.rotation = Quaternion
-            .fromAxisAngle(Float3(0f, 1f, 0f), angle)
+            .fromAxisAngle(Float3(0f, 1f, 0f), valueToAngle)
             .toRotation(RotationsOrder.YXZ)
     }
 
     var pointerNode: Node? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(pointerNode) {
+    LaunchedEffect(temperatura, pointerNode) {
         pointerNode?.let {
-            updatePointer(it, 0f)
+            updatePointer(it, temperatura?.value ?: 0f)
         }
     }
 
@@ -94,12 +97,6 @@ fun HomeScreen(
                 .toRotation(RotationsOrder.XYZ)
             pointerNode = it.findChildRecursive("Body1.003")
         }
-    }
-
-    val easyNode = remember {
-
-
-        PlaneNode(engine)
     }
 
     ARScene(

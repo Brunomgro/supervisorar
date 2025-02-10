@@ -92,7 +92,7 @@ dependencies {
     /**
      * Firebase para pegar os dados em tempo real
      * */
-    implementation platform('com.google.firebase:firebase-bom:33.9.0')
+    implementation 'com.google.firebase:firebase-database:21.0.0'
 
     /**
      * Dependencias de teste automatizado

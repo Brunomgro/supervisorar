@@ -1,11 +1,16 @@
 package com.example.supervisorar.domain.model
 
 data class MachineInfo(
-    val albumId: Int? = null,
-    val id: Int? = null,
-    val title: String? = null,
-    val url: String? = null,
-    val thumbnailUrl: String? = null,
-    val value: Double? = null,
-    val type: String? = null
+    val id: String = "",
+    val type: String = "",
+    val value: Float = 0f,
+    val min: Float = 0f,
+    val max: Float = 100f
 )
+
+enum class MachineInfoType {
+    temperature,
+    level,
+    speed
+}
+

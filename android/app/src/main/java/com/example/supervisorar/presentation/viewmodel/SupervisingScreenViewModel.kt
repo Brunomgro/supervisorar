@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.supervisorar.domain.model.Medidores3d
 import com.example.supervisorar.domain.model.QrCodeInfo
 import com.example.supervisorar.domain.usecase.ReadQrCodeUseCase
 import com.example.supervisorar.domain.usecase.SupervisorarUseCase
@@ -25,26 +26,14 @@ class SupervisingScreenViewModel(
     var job: Job? = null
 
     val temperatureData = useCase.getInfo().map {
-        it.firstOrNull()
+        it.firstOrNull { info -> info.id == "maquina1" }
     }
 
-    fun findQrCode(
-        image: () -> Image,
-        onFinish: (QrCodeInfo?) -> Unit
-    ) {
-        job = launch(coroutineContext) {
-            val imageFrame = runCatching { image() }.fold(
-                onSuccess = { it },
-                onFailure = { Log.d("BRUNO", it.message.orEmpty()); null }
-            ) ?: return@launch
-
-            runCatching { qrCodeUseCase.getData(imageFrame, onFinish) }
-        }
+    val levelData = useCase.getInfo().map {
+        it.firstOrNull { info -> info.id == "maquina2" }
     }
 
-    init {
-//        viewModelScope.launch {
-//            val info = useCase.getInfo()
-//        }
-    }
+    val medidasDoServidor = useCase.getInfo()
+
+    val generateNodes = useCase::generateNode
 }

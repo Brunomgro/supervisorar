@@ -48,27 +48,18 @@ fun HomeScreen(
     val nodes = rememberNodes {}
     var augmentedImageNodes by remember { mutableStateOf(listOf<AugmentedImageNode>()) }
     val materialLoader = rememberMaterialLoader(engine)
-
-    var presentationData = remember {
-        viewModel.generateNodes()(modelLoader).map {
-            MachinePresentationData(
-                it.first,
-                it.second,
-                0f,
-                it.third
-            )
-        }
-    }
-
+    var presentationData by remember { mutableStateOf(viewModel.generateNodes(modelLoader)) }
     val serverData by viewModel.medidasDoServidor.collectAsState(listOf())
 
     LaunchedEffect(serverData) {
-        Log.d("BRUNO", "criou serverData")
-
         presentationData = presentationData.map {
-            it.copy(valor =  serverData.find { data -> data.id == it.id }?.value ?: 0f)
+            it.copy(valor =  serverData.find { data ->
+                data.id == it.id }?.value ?: 0f
+            )
         }.onEach {
-            updatePointer(it)
+            it.ponteiro?.rotation = Quaternion
+                .fromAxisAngle(Float3(0f, 1f, 0f), viewModel.calculateAngle(it.info, it.valor))
+                .toRotation(RotationsOrder.YXZ)
         }
     }
 
@@ -113,14 +104,11 @@ fun HomeScreen(
         onSessionPaused = { _ ->
             Toast.makeText(context, "session paused", Toast.LENGTH_SHORT).show()
         },
-        onSessionUpdated = { session, updatedFrame ->
+        onSessionUpdated = { _, updatedFrame ->
             updatedFrame.getUpdatedAugmentedImages().forEach { augmentedImage ->
                 if (augmentedImageNodes.none { it.imageName == augmentedImage.name }) {
-
                     val augmentedImageNode = AugmentedImageNode(engine, augmentedImage).apply {
-                        Log.d("BRUNO", "criou augmented node")
                         presentationData.find { it.id == augmentedImage.name }?.medidor?.let {
-                            Log.d("BRUNO", "encontrou id por name")
                             addChildNode(it)
                         }
                     }
@@ -137,21 +125,4 @@ fun HomeScreen(
             Toast.makeText(context, trackingFailureReason.toString(), Toast.LENGTH_SHORT).show()
         }
     )
-}
-
-fun updatePointer(data: MachinePresentationData) {
-    val info = data.info
-
-    val valor = if (data.valor > info.valueMax) {
-        info.valueMax
-    } else if (data.valor < info.valueMin) {
-        info.valueMin
-    } else data.valor
-
-    val valueToAngle =
-        ((valor - info.valueMin) / (info.valueMax - info.valueMin)) * (info.angleMax - info.angleMin) + info.angleMin
-
-    data.ponteiro?.rotation = Quaternion
-        .fromAxisAngle(Float3(0f, 1f, 0f), valueToAngle)
-        .toRotation(RotationsOrder.YXZ)
 }

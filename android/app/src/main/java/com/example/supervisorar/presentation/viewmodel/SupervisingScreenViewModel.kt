@@ -9,6 +9,8 @@ import com.example.supervisorar.domain.model.Medidores3d
 import com.example.supervisorar.domain.model.QrCodeInfo
 import com.example.supervisorar.domain.usecase.ReadQrCodeUseCase
 import com.example.supervisorar.domain.usecase.SupervisorarUseCase
+import com.example.supervisorar.presentation.presentationmodel.MachinePresentationData
+import io.github.sceneview.loaders.ModelLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,5 +37,14 @@ class SupervisingScreenViewModel(
 
     val medidasDoServidor = useCase.getInfo()
 
-    val generateNodes = useCase::generateNode
+    fun generateNodes(modelLoader: ModelLoader) = useCase.generateNode()(modelLoader).map {
+        MachinePresentationData(
+            it.first,
+            it.second,
+            0f,
+            it.third
+        )
+    }
+
+    val calculateAngle = useCase::calculateAngle
 }

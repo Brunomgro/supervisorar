@@ -10,4 +10,5 @@ import kotlinx.coroutines.flow.Flow
 interface SupervisorarUseCase {
     fun getInfo(): Flow<List<MachineInfo>>
     fun generateNode(): (ModelLoader) -> List<Triple<ModelNode, Node?, Medidores3d>>
+    fun calculateAngle(info: Medidores3d, objectiveValue: Float): Float
 }

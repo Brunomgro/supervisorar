@@ -20,10 +20,9 @@ import io.github.sceneview.node.Node
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class SupervisorarUseCaseImpl(): SupervisorarUseCase {
+class SupervisorarUseCaseImpl: SupervisorarUseCase {
     private val database = Firebase.database
     private val myRef = database.getReference("leitura")
-
     private val currentData = MutableStateFlow<List<MachineInfo>>(emptyList())
 
     init {
@@ -32,21 +31,20 @@ class SupervisorarUseCaseImpl(): SupervisorarUseCase {
                 kotlin.runCatching {
                     dataSnapshot.getValue<List<MachineInfo>>()?.let {
                         currentData.value = it
-                    } ?: Log.d("BRUNO", "no data found")
+                    }
                 }.onFailure { error ->
-                    dataSnapshot.getValue<List<MachineInfo>>()?.let {
-                        currentData.value = it
-                    } ?: Log.d("BRUNO", error.toString())
+                    Log.d("FIREBASE",error.toString())
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.d("BRUNO", error.message)
+                Log.d("FIREBASE", error.message)
             }
         })
     }
 
     override fun getInfo(): Flow<List<MachineInfo>> = currentData
+
 
     override fun generateNode(): (modelLoader: ModelLoader) -> List<Triple<ModelNode, Node?, Medidores3d>> = { modelLoader ->
         Medidores3d.entries.map {
@@ -69,7 +67,17 @@ class SupervisorarUseCaseImpl(): SupervisorarUseCase {
         }
     }
 
-    fun Node.findChildRecursive(name: String): Node? {
+    override fun calculateAngle(info: Medidores3d, objectiveValue: Float): Float {
+        val valor = if (objectiveValue > info.valueMax) {
+            info.valueMax
+        } else if (objectiveValue < info.valueMin) {
+            info.valueMin
+        } else objectiveValue
+
+        return ((valor - info.valueMin) / (info.valueMax - info.valueMin)) * (info.angleMax - info.angleMin) + info.angleMin
+    }
+
+    private fun Node.findChildRecursive(name: String): Node? {
         if (this.name == name) return this
 
         for (child in this.childNodes) {

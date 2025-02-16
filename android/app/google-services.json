@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "960444417311",
+    "firebase_url": "https://supervisor-realidade-aumentada-default-rtdb.firebaseio.com",
+    "project_id": "supervisor-realidade-aumentada",
+    "storage_bucket": "supervisor-realidade-aumentada.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960444417311:android:825b24124a72f958795c2a",
+        "android_client_info": {
+          "package_name": "com.example.supervisorar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtQouQpF9b6W02uA9n0J1-arh0UARdrTM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
